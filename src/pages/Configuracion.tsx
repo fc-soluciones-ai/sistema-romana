@@ -53,31 +53,45 @@ export function Configuracion({ datos, setDatos, restablecer }: Props) {
       <section className="tarjeta">
         <h2>Materiales y precios de compra</h2>
         <p className="tenue">
-          Precios de ejemplo. El cambio aplica a las compras nuevas; las boletas ya emitidas conservan su precio.
+          El precio inicial es el punto medio del rango de referencia. El cambio aplica a las compras nuevas;
+          las boletas ya emitidas conservan el precio que tenían.
         </p>
         <table className="tabla">
           <thead>
             <tr>
               <th>Material</th>
+              <th className="num">Referencia de mercado</th>
               <th className="num">Precio por kg (₡)</th>
             </tr>
           </thead>
           <tbody>
-            {datos.materiales.map((m) => (
-              <tr key={m.id}>
-                <td>{m.nombre}</td>
-                <td className="num">
-                  <input
-                    type="number"
-                    min={0}
-                    step={5}
-                    className="precio"
-                    value={m.precioKg}
-                    onChange={(e) => cambiarPrecio(m.id, Number(e.target.value))}
-                  />
-                </td>
-              </tr>
-            ))}
+            {datos.materiales.map((m) => {
+              const fueraDeRango =
+                m.precioMin !== undefined &&
+                m.precioMax !== undefined &&
+                (m.precioKg < m.precioMin || m.precioKg > m.precioMax)
+              return (
+                <tr key={m.id}>
+                  <td className="envuelve">{m.nombre}</td>
+                  <td className="num tenue-celda">
+                    {m.precioMin !== undefined && m.precioMax !== undefined
+                      ? `₡${m.precioMin.toLocaleString('es-CR')} – ₡${m.precioMax.toLocaleString('es-CR')}`
+                      : '—'}
+                  </td>
+                  <td className="num">
+                    <input
+                      type="number"
+                      min={0}
+                      step={5}
+                      className={`precio ${fueraDeRango ? 'fuera-rango' : ''}`}
+                      value={m.precioKg}
+                      onChange={(e) => cambiarPrecio(m.id, Number(e.target.value))}
+                    />
+                    {fueraDeRango && <span className="aviso-rango">fuera de la referencia</span>}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
         <div className="fila-agregar">

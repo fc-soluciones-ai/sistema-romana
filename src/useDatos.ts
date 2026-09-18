@@ -3,7 +3,8 @@ import { datosDemo } from './demo'
 import type { Datos } from './types'
 
 // Prototipo: los datos viven en el navegador. En la versión final irán a una base de datos.
-const CLAVE = 'sistema-romana:v1'
+// Al cambiar la lista de materiales se sube la versión para descartar lo guardado antes.
+const CLAVE = 'sistema-romana:v2'
 
 function cargar(): Datos {
   try {

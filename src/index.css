@@ -413,6 +413,27 @@ input.precio {
   text-align: right;
 }
 
+input.precio.fuera-rango {
+  border-color: var(--acento);
+  background: #fffbef;
+}
+
+.aviso-rango {
+  display: block;
+  margin-top: 2px;
+  color: #7a5a00;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.tabla td.envuelve {
+  white-space: normal;
+}
+
+.tabla td.tenue-celda {
+  color: var(--tenue);
+}
+
 /* ---------- Tablas ---------- */
 
 .tabla-contenedor {

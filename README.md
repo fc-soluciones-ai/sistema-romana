@@ -1,11 +1,27 @@
 # Sistema de Romana
 
 Prototipo de sistema para una romana caminera de un centro de compra de chatarra en Costa Rica.
-El negocio compra hierro, cobre y aluminio y exporta todo lo comprado a un único exportador.
+El negocio compra hierro, cobre y aluminio —cada uno separado por estado, porque el precio
+depende de eso— y exporta todo lo comprado a un único exportador.
 
 > **Prototipo de demostración.** La báscula está simulada y los datos se guardan solo en el
-> navegador (`localStorage`). Los precios, el nombre de la empresa y el exportador son de ejemplo
-> y se cambian en **Configuración**.
+> navegador (`localStorage`). El nombre de la empresa y el exportador son de ejemplo y se cambian
+> en **Configuración**.
+
+## Materiales y precios de referencia
+
+| Material | Referencia de mercado (₡/kg) | Precio inicial |
+| --- | --- | --- |
+| Cobre limpio (primera) | 3 000 – 3 500 | 3 250 |
+| Cobre mezclado (segunda) | 2 300 – 2 800 | 2 550 |
+| Aluminio grueso / perfil limpio | 700 – 1 000 | 850 |
+| Aluminio sucio / latas / radiadores | 300 – 500 | 400 |
+| Hierro pesado / estructural | 80 – 120 | 100 |
+| Hierro liviano / lámina | 50 – 80 | 65 |
+
+El precio inicial es el punto medio del rango. En **Configuración** se ajusta cada uno; si el precio
+queda fuera de su rango de referencia, la casilla lo advierte. Los rangos se editan en
+`src/demo.ts`.
 
 ## Funciones
 

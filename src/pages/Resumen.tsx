@@ -58,7 +58,7 @@ export function Resumen({ datos, verBoleta }: Props) {
                 </div>
                 <div className="barra">
                   <div
-                    className={`barra-relleno ${e.materialId}`}
+                    className={`barra-relleno ${e.materialId.split('-')[0]}`}
                     style={{ width: `${(Math.max(e.existenciaKg, 0) / maxExistencia) * 100}%` }}
                   />
                 </div>

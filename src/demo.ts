@@ -1,10 +1,14 @@
 import type { Datos, Pesaje, TipoPesaje } from './types'
 
-// Precios de ejemplo para la demostración. Se ajustan en Configuración.
+// Precios de mercado de referencia. El precio inicial es el punto medio del rango
+// y se ajusta en Configuración.
 const materiales = [
-  { id: 'hierro', nombre: 'Hierro', precioKg: 110 },
-  { id: 'cobre', nombre: 'Cobre', precioKg: 4200 },
-  { id: 'aluminio', nombre: 'Aluminio', precioKg: 750 },
+  { id: 'cobre-limpio', nombre: 'Cobre limpio (primera)', precioKg: 3250, precioMin: 3000, precioMax: 3500 },
+  { id: 'cobre-mezclado', nombre: 'Cobre mezclado (segunda)', precioKg: 2550, precioMin: 2300, precioMax: 2800 },
+  { id: 'aluminio-grueso', nombre: 'Aluminio grueso / perfil limpio', precioKg: 850, precioMin: 700, precioMax: 1000 },
+  { id: 'aluminio-sucio', nombre: 'Aluminio sucio / latas / radiadores', precioKg: 400, precioMin: 300, precioMax: 500 },
+  { id: 'hierro-pesado', nombre: 'Hierro pesado / estructural', precioKg: 100, precioMin: 80, precioMax: 120 },
+  { id: 'hierro-liviano', nombre: 'Hierro liviano / lámina', precioKg: 65, precioMin: 50, precioMax: 80 },
 ]
 
 const proveedores = [
@@ -42,16 +46,16 @@ interface Semilla {
 }
 
 const semillas: Semilla[] = [
-  { tipo: 'compra', dias: 6, hora: 8, placa: 'C-145872', conductor: 'Luis Brenes', materialId: 'hierro', proveedorId: 'p1', entrada: 24_380, salida: 11_240, rebajoPct: 2 },
-  { tipo: 'compra', dias: 6, hora: 10, placa: 'CL-298310', conductor: 'José Mora', materialId: 'cobre', proveedorId: 'p2', entrada: 4_120, salida: 3_310 },
-  { tipo: 'compra', dias: 5, hora: 9, placa: 'C-160455', conductor: 'Andrés Vargas', materialId: 'hierro', proveedorId: 'p3', entrada: 29_760, salida: 12_880, rebajoPct: 3 },
-  { tipo: 'compra', dias: 4, hora: 11, placa: 'CL-310022', conductor: 'María Jiménez', materialId: 'aluminio', proveedorId: 'p4', entrada: 5_430, salida: 3_980, rebajoPct: 1 },
-  { tipo: 'compra', dias: 3, hora: 8, placa: 'C-145872', conductor: 'Luis Brenes', materialId: 'hierro', proveedorId: 'p1', entrada: 26_110, salida: 11_250, rebajoPct: 2 },
-  { tipo: 'despacho', dias: 2, hora: 14, placa: 'C-172001', conductor: 'Carlos Quesada', materialId: 'hierro', contenedor: 'MSKU 482193-0', marchamo: 'CR-0045812', entrada: 14_600, salida: 38_920 },
-  { tipo: 'compra', dias: 1, hora: 9, placa: 'C-160455', conductor: 'Andrés Vargas', materialId: 'hierro', proveedorId: 'p3', entrada: 27_940, salida: 12_900, rebajoPct: 2 },
-  { tipo: 'compra', dias: 1, hora: 15, placa: 'CL-298310', conductor: 'José Mora', materialId: 'cobre', proveedorId: 'p2', entrada: 3_980, salida: 3_300 },
-  { tipo: 'compra', dias: 0, hora: 2, placa: 'CL-310022', conductor: 'María Jiménez', materialId: 'aluminio', proveedorId: 'p4', entrada: 4_870, salida: 3_990, rebajoPct: 1 },
-  { tipo: 'compra', dias: 0, hora: 1, placa: 'C-145872', conductor: 'Luis Brenes', materialId: 'hierro', proveedorId: 'p1', entrada: 25_420 },
+  { tipo: 'compra', dias: 6, hora: 8, placa: 'C-145872', conductor: 'Luis Brenes', materialId: 'hierro-pesado', proveedorId: 'p1', entrada: 24_380, salida: 11_240, rebajoPct: 2 },
+  { tipo: 'compra', dias: 6, hora: 10, placa: 'CL-298310', conductor: 'José Mora', materialId: 'cobre-limpio', proveedorId: 'p2', entrada: 4_120, salida: 3_310 },
+  { tipo: 'compra', dias: 5, hora: 9, placa: 'C-160455', conductor: 'Andrés Vargas', materialId: 'hierro-pesado', proveedorId: 'p3', entrada: 29_760, salida: 12_880, rebajoPct: 3 },
+  { tipo: 'compra', dias: 4, hora: 11, placa: 'CL-310022', conductor: 'María Jiménez', materialId: 'aluminio-grueso', proveedorId: 'p4', entrada: 5_430, salida: 3_980, rebajoPct: 1 },
+  { tipo: 'compra', dias: 3, hora: 8, placa: 'C-145872', conductor: 'Luis Brenes', materialId: 'hierro-liviano', proveedorId: 'p1', entrada: 26_110, salida: 11_250, rebajoPct: 2 },
+  { tipo: 'despacho', dias: 2, hora: 14, placa: 'C-172001', conductor: 'Carlos Quesada', materialId: 'hierro-pesado', contenedor: 'MSKU 482193-0', marchamo: 'CR-0045812', entrada: 14_600, salida: 38_920 },
+  { tipo: 'compra', dias: 1, hora: 9, placa: 'C-160455', conductor: 'Andrés Vargas', materialId: 'hierro-pesado', proveedorId: 'p3', entrada: 27_940, salida: 12_900, rebajoPct: 2 },
+  { tipo: 'compra', dias: 1, hora: 15, placa: 'CL-298310', conductor: 'José Mora', materialId: 'cobre-mezclado', proveedorId: 'p2', entrada: 3_980, salida: 3_300 },
+  { tipo: 'compra', dias: 0, hora: 2, placa: 'CL-310022', conductor: 'María Jiménez', materialId: 'aluminio-sucio', proveedorId: 'p4', entrada: 4_870, salida: 3_990, rebajoPct: 1 },
+  { tipo: 'compra', dias: 0, hora: 1, placa: 'C-145872', conductor: 'Luis Brenes', materialId: 'hierro-pesado', proveedorId: 'p1', entrada: 25_420 },
 ]
 
 export function datosDemo(): Datos {

@@ -3,6 +3,9 @@ export interface Material {
   nombre: string
   /** Precio de compra en colones por kilogramo. */
   precioKg: number
+  /** Rango de mercado de referencia, para orientar al pesador. */
+  precioMin?: number
+  precioMax?: number
 }
 
 export interface Proveedor {
