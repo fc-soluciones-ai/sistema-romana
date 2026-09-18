@@ -26,7 +26,8 @@ lo guarda.
 
 ### Regla para todas las tablas de registros
 
-Materiales y vendedores se editan directamente en su tabla y siguen la misma regla:
+Materiales, vendedores, conductores y vehículos usan el mismo componente (`TablaRegistros`), se
+editan directamente en su tabla y siguen la misma regla:
 
 - **Sin boletas asociadas:** el registro se puede **eliminar**.
 - **Con boletas asociadas:** se **desactiva** en lugar de borrarse. Deja de aparecer al pesar, pero
@@ -40,7 +41,7 @@ Materiales y vendedores se editan directamente en su tabla y siguen la misma reg
 | **Compras** | Pesaje de entrada del camión cargado (bruto) y de salida vacío (tara). Calcula el peso neto, aplica el rebajo por impurezas, multiplica por el precio vigente y emite la boleta. |
 | **Despachos** | Carga para el exportador: pesa el camión vacío y luego cargado, con contenedor y marchamo. No deja despachar más de lo que hay en inventario. |
 | **Historial** | Todas las boletas, con filtros por tipo, material, fechas y búsqueda. Permite reimprimir, anular y exportar a CSV (Excel). |
-| **Vendedores** | Registro de vendedores de chatarra (nombre, cédula y teléfono), editable en la tabla, con sus totales vendidos. |
+| **Registros** | Tablas de vendedores, conductores y vehículos, editables en la misma fila. El vehículo guarda su tara registrada, que se muestra como referencia al dar la salida. |
 | **Configuración** | Datos de la empresa para la boleta, nombre del exportador, alta y baja de materiales con su precio y rango, y restablecimiento de los datos de demostración. |
 
 La boleta se imprime en formato de 80 mm para impresora térmica.
@@ -67,7 +68,9 @@ src/
   useDatos.ts          persistencia en localStorage
   components/Romana.tsx  indicador de peso (simulado)
   components/Boleta.tsx  boleta imprimible
-  pages/               Resumen, Operacion (compras y despachos), Historial, Proveedores, Configuracion
+  components/TablaRegistros.tsx  tabla estándar de alta, edición y baja
+  components/AccionesRegistro.tsx  regla de eliminar o desactivar
+  pages/               Resumen, Operacion (compras y despachos), Historial, Registros, Configuracion
 ```
 
 ## Siguientes pasos si el cliente aprueba
@@ -75,6 +78,7 @@ src/
 - Leer el indicador real de la romana (puerto serie o red) en lugar del simulador.
 - Base de datos y servidor para que varios equipos usen el sistema y no se pierdan datos.
 - Usuarios y permisos (pesador, administrador), con bitácora de anulaciones.
+- Avisar automáticamente cuando la tara pesada se aparte de la registrada para el vehículo.
 - Fotos de placa y carga desde cámaras al capturar el peso.
 - Precios con historial y cierre de caja diario.
 - Revisar con el contador los requisitos de Hacienda (factura electrónica o comprobantes) para las compras y la exportación.

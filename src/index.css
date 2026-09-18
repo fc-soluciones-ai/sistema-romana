@@ -422,9 +422,30 @@ input.precio.corto {
   width: 90px;
 }
 
-input.nombre-registro {
+input.celda-registro {
   min-width: 150px;
   padding: 5px 8px;
+}
+
+input.celda-registro.corto {
+  min-width: 0;
+  width: 110px;
+}
+
+.tabla .num input.celda-registro {
+  text-align: right;
+}
+
+.registros {
+  display: grid;
+  gap: 20px;
+}
+
+.columna-simple {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  min-width: 0;
 }
 
 .tabla tr.inactiva input,

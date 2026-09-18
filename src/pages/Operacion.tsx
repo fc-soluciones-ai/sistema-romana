@@ -12,8 +12,12 @@ interface Props {
 
 const aleatorio = (min: number, max: number) => min + Math.random() * (max - min)
 
+const OTRO = 'otro'
+
 const formularioVacio = {
+  vehiculoId: '',
   placa: '',
+  conductorId: '',
   conductor: '',
   proveedorId: '',
   materialId: '',
@@ -33,6 +37,13 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
   const enSalida = enPatio.find((p) => p.id === salidaId)
   const nombreMaterial = (id: string) => datos.materiales.find((m) => m.id === id)?.nombre ?? '—'
   const nombreProveedor = (id?: string) => datos.proveedores.find((x) => x.id === id)?.nombre ?? '—'
+  const vehiculoDe = (id?: string) => datos.vehiculos.find((v) => v.id === id)
+  // La placa y el conductor se toman del registro; con "otro" se escriben a mano.
+  const placaElegida = form.vehiculoId === OTRO ? form.placa : (vehiculoDe(form.vehiculoId)?.placa ?? '')
+  const conductorElegido =
+    form.conductorId === OTRO
+      ? form.conductor
+      : (datos.conductores.find((c) => c.id === form.conductorId)?.nombre ?? '')
   const existenciaDe = (materialId: string) =>
     existencias(datos).find((e) => e.materialId === materialId)?.existenciaKg ?? 0
 
@@ -60,7 +71,7 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
 
   function registrarEntrada(peso: number): boolean {
     const faltantes = [
-      !form.placa.trim() && 'placa',
+      !placaElegida.trim() && 'placa',
       !form.materialId && 'material',
       esCompra && !form.proveedorId && 'vendedor',
     ].filter(Boolean)
@@ -73,8 +84,10 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
       boleta: datos.siguienteBoleta,
       tipo,
       estado: 'en_patio',
-      placa: form.placa.trim().toUpperCase(),
-      conductor: form.conductor.trim(),
+      placa: placaElegida.trim().toUpperCase(),
+      conductor: conductorElegido.trim(),
+      vehiculoId: form.vehiculoId === OTRO ? undefined : form.vehiculoId || undefined,
+      conductorId: form.conductorId === OTRO ? undefined : form.conductorId || undefined,
       materialId: form.materialId,
       proveedorId: esCompra ? form.proveedorId : undefined,
       contenedor: esCompra ? undefined : form.contenedor.trim().toUpperCase(),
@@ -154,6 +167,12 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
               <dd>{nombreMaterial(enSalida.materialId)}</dd>
               <dt>Peso de entrada</dt>
               <dd>{formatoKg(enSalida.pesoEntrada)}</dd>
+              {vehiculoDe(enSalida.vehiculoId)?.taraKg !== undefined && (
+                <>
+                  <dt>Tara registrada</dt>
+                  <dd>{formatoKg(vehiculoDe(enSalida.vehiculoId)!.taraKg!)}</dd>
+                </>
+              )}
               {esCompra && (
                 <>
                   <dt>Precio vigente</dt>
@@ -191,12 +210,41 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
             <div className="formulario">
               <label>
                 Placa *
-                <input placeholder="C-123456" {...campo('placa')} />
+                <select {...campo('vehiculoId')}>
+                  <option value="">Seleccione…</option>
+                  {datos.vehiculos.filter(estaActivo).map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.placa}
+                      {v.descripcion && ` · ${v.descripcion}`}
+                    </option>
+                  ))}
+                  <option value={OTRO}>Otra placa (no registrada)…</option>
+                </select>
               </label>
               <label>
                 Conductor
-                <input {...campo('conductor')} />
+                <select {...campo('conductorId')}>
+                  <option value="">Seleccione…</option>
+                  {datos.conductores.filter(estaActivo).map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                  <option value={OTRO}>Otro conductor (no registrado)…</option>
+                </select>
               </label>
+              {form.vehiculoId === OTRO && (
+                <label>
+                  Placa sin registrar *
+                  <input placeholder="C-123456" {...campo('placa')} />
+                </label>
+              )}
+              {form.conductorId === OTRO && (
+                <label>
+                  Conductor sin registrar
+                  <input {...campo('conductor')} />
+                </label>
+              )}
               {esCompra && (
                 <label>
                   Vendedor *

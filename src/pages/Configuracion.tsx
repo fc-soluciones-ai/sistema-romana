@@ -1,6 +1,6 @@
-import { useState, type Dispatch, type SetStateAction } from 'react'
+import type { Dispatch, SetStateAction } from 'react'
 import { estaActivo, nuevoId, usadoEn } from '../calculos'
-import { AccionesRegistro } from '../components/AccionesRegistro'
+import { TablaRegistros } from '../components/TablaRegistros'
 import type { Configuracion as Config, Datos, Material } from '../types'
 
 interface Props {
@@ -17,59 +17,46 @@ const CAMPOS: { clave: keyof Config; etiqueta: string }[] = [
   { clave: 'exportador', etiqueta: 'Exportador (comprador de toda la chatarra)' },
 ]
 
-const materialVacio = { nombre: '', precioKg: '', precioMin: '', precioMax: '' }
-
 /** Devuelve undefined cuando la casilla queda en blanco, para no guardar un rango falso. */
-const aNumero = (texto: string) => (texto.trim() === '' ? undefined : Math.max(0, Number(texto)))
+const aNumero = (texto?: string) =>
+  texto === undefined || texto.trim() === '' ? undefined : Math.max(0, Number(texto))
+
+const fueraDeRango = (m: Material) =>
+  m.precioMin !== undefined && m.precioMax !== undefined && (m.precioKg < m.precioMin || m.precioKg > m.precioMax)
 
 export function Configuracion({ datos, setDatos, restablecer }: Props) {
-  const [nuevo, setNuevo] = useState(materialVacio)
-  const [error, setError] = useState('')
-
   const cambiarConfig = (clave: keyof Config, valor: string) =>
     setDatos((d) => ({ ...d, config: { ...d.config, [clave]: valor } }))
 
-  const cambiarMaterial = (id: string, cambios: Partial<Material>) =>
+  const cambiarMaterial = (id: string, clave: string, valor: string) =>
     setDatos((d) => ({
       ...d,
-      materiales: d.materiales.map((m) => (m.id === id ? { ...m, ...cambios } : m)),
+      materiales: d.materiales.map((m) =>
+        m.id === id
+          ? { ...m, [clave]: clave === 'nombre' ? valor : clave === 'precioKg' ? (aNumero(valor) ?? 0) : aNumero(valor) }
+          : m,
+      ),
     }))
 
-  const eliminarMaterial = (id: string) =>
-    setDatos((d) => ({ ...d, materiales: d.materiales.filter((m) => m.id !== id) }))
-
-  function agregarMaterial() {
-    const nombre = nuevo.nombre.trim()
-    if (!nombre) {
-      setError('Escriba el nombre del material.')
-      return
-    }
-    if (datos.materiales.some((m) => m.nombre.toLowerCase() === nombre.toLowerCase())) {
-      setError('Ya existe un material con ese nombre.')
-      return
-    }
-    const min = aNumero(nuevo.precioMin)
-    const max = aNumero(nuevo.precioMax)
-    if (min !== undefined && max !== undefined && min > max) {
-      setError('El mínimo del rango no puede ser mayor que el máximo.')
-      return
-    }
+  function agregarMaterial(v: Record<string, string>): string | null {
+    const nombre = (v.nombre ?? '').trim()
+    if (!nombre) return 'Escriba el nombre del material.'
+    if (datos.materiales.some((m) => m.nombre.toLowerCase() === nombre.toLowerCase()))
+      return 'Ya existe un material con ese nombre.'
+    const min = aNumero(v.precioMin)
+    const max = aNumero(v.precioMax)
+    if (min !== undefined && max !== undefined && min > max)
+      return 'El mínimo del rango no puede ser mayor que el máximo.'
     const material: Material = {
       id: nuevoId(),
       nombre,
-      precioKg: aNumero(nuevo.precioKg) ?? (min !== undefined && max !== undefined ? Math.round((min + max) / 2) : 0),
+      precioKg: aNumero(v.precioKg) ?? (min !== undefined && max !== undefined ? Math.round((min + max) / 2) : 0),
       precioMin: min,
       precioMax: max,
     }
     setDatos((d) => ({ ...d, materiales: [...d.materiales, material] }))
-    setNuevo(materialVacio)
-    setError('')
+    return null
   }
-
-  const campoNuevo = (clave: keyof typeof materialVacio) => ({
-    value: nuevo[clave],
-    onChange: (e: { target: { value: string } }) => setNuevo({ ...nuevo, [clave]: e.target.value }),
-  })
 
   return (
     <div className="columnas">
@@ -84,112 +71,6 @@ export function Configuracion({ datos, setDatos, restablecer }: Props) {
             </label>
           ))}
         </div>
-      </section>
-
-      <section className="tarjeta">
-        <h2>Materiales y precios de compra</h2>
-        <p className="tenue">
-          Agregue los materiales que compre el negocio y edite cualquier dato directamente en la tabla. El cambio
-          de precio aplica a las compras nuevas; las boletas ya emitidas conservan el precio que tenían.
-        </p>
-        <div className="tabla-contenedor">
-          <table className="tabla">
-            <thead>
-              <tr>
-                <th>Material</th>
-                <th className="num">Mínimo ₡</th>
-                <th className="num">Máximo ₡</th>
-                <th className="num">Precio por kg ₡</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {datos.materiales.map((m) => {
-                const activo = estaActivo(m)
-                const fueraDeRango =
-                  m.precioMin !== undefined &&
-                  m.precioMax !== undefined &&
-                  (m.precioKg < m.precioMin || m.precioKg > m.precioMax)
-                return (
-                  <tr key={m.id} className={activo ? '' : 'inactiva'}>
-                    <td>
-                      <input
-                        className="nombre-registro"
-                        value={m.nombre}
-                        onChange={(e) => cambiarMaterial(m.id, { nombre: e.target.value })}
-                      />
-                      {!activo && <span className="aviso-inactivo">inactivo</span>}
-                    </td>
-                    <td className="num">
-                      <input
-                        type="number"
-                        min={0}
-                        step={5}
-                        className="precio corto"
-                        value={m.precioMin ?? ''}
-                        onChange={(e) => cambiarMaterial(m.id, { precioMin: aNumero(e.target.value) })}
-                      />
-                    </td>
-                    <td className="num">
-                      <input
-                        type="number"
-                        min={0}
-                        step={5}
-                        className="precio corto"
-                        value={m.precioMax ?? ''}
-                        onChange={(e) => cambiarMaterial(m.id, { precioMax: aNumero(e.target.value) })}
-                      />
-                    </td>
-                    <td className="num">
-                      <input
-                        type="number"
-                        min={0}
-                        step={5}
-                        className={`precio ${fueraDeRango ? 'fuera-rango' : ''}`}
-                        value={m.precioKg}
-                        onChange={(e) => cambiarMaterial(m.id, { precioKg: aNumero(e.target.value) ?? 0 })}
-                      />
-                      {fueraDeRango && <span className="aviso-rango">fuera de la referencia</span>}
-                    </td>
-                    <td className="acciones">
-                      <AccionesRegistro
-                        nombre={m.nombre}
-                        activo={activo}
-                        boletas={usadoEn(datos, 'materialId', m.id)}
-                        onEliminar={() => eliminarMaterial(m.id)}
-                        onActivar={(valor) => cambiarMaterial(m.id, { activo: valor })}
-                      />
-                    </td>
-                  </tr>
-                )
-              })}
-              <tr className="fila-nueva">
-                <td>
-                  <input placeholder="Nuevo material (p. ej. bronce)" {...campoNuevo('nombre')} />
-                </td>
-                <td className="num">
-                  <input type="number" min={0} step={5} className="precio corto" {...campoNuevo('precioMin')} />
-                </td>
-                <td className="num">
-                  <input type="number" min={0} step={5} className="precio corto" {...campoNuevo('precioMax')} />
-                </td>
-                <td className="num">
-                  <input type="number" min={0} step={5} className="precio" {...campoNuevo('precioKg')} />
-                </td>
-                <td className="acciones">
-                  <button type="button" className="boton chico primario" onClick={agregarMaterial}>
-                    Agregar
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        {error && <p className="error">{error}</p>}
-        <p className="ayuda">
-          El mínimo y el máximo son solo una referencia: si el precio se sale de ese rango, la casilla lo advierte,
-          pero igual lo deja guardar. Si deja el precio en blanco al agregar, se usa el punto medio del rango.
-        </p>
 
         <h2 className="separado">Datos de demostración</h2>
         <p className="tenue">Borra todo lo registrado y vuelve a cargar los ejemplos.</p>
@@ -201,6 +82,40 @@ export function Configuracion({ datos, setDatos, restablecer }: Props) {
           Restablecer demostración
         </button>
       </section>
+
+      <div className="columna-simple">
+        <TablaRegistros
+          titulo="Materiales y precios de compra"
+          descripcion="Agregue los materiales que compre el negocio. El cambio de precio aplica a las compras nuevas;
+            las boletas ya emitidas conservan el precio que tenían."
+          columnas={[
+            { clave: 'nombre', etiqueta: 'Material', placeholder: 'Nuevo material (p. ej. bronce)' },
+            { clave: 'precioMin', etiqueta: 'Mínimo ₡', numero: true, corto: true, paso: 5 },
+            { clave: 'precioMax', etiqueta: 'Máximo ₡', numero: true, corto: true, paso: 5 },
+            { clave: 'precioKg', etiqueta: 'Precio por kg ₡', numero: true, corto: true, paso: 5 },
+          ]}
+          filas={datos.materiales.map((m) => ({
+            id: m.id,
+            nombre: m.nombre,
+            activo: estaActivo(m),
+            boletas: usadoEn(datos, 'materialId', m.id),
+            valores: { nombre: m.nombre, precioMin: m.precioMin, precioMax: m.precioMax, precioKg: m.precioKg },
+            avisos: fueraDeRango(m) ? { precioKg: 'fuera de la referencia' } : undefined,
+          }))}
+          onCambiar={cambiarMaterial}
+          onAgregar={agregarMaterial}
+          onEliminar={(id) => setDatos((d) => ({ ...d, materiales: d.materiales.filter((m) => m.id !== id) }))}
+          onActivar={(id, activo) => cambiarMaterialActivo(setDatos, id, activo)}
+        />
+        <p className="ayuda">
+          El mínimo y el máximo son solo una referencia: si el precio se sale de ese rango, la casilla lo advierte,
+          pero igual lo deja guardar. Si deja el precio en blanco al agregar, se usa el punto medio del rango.
+        </p>
+      </div>
     </div>
   )
+}
+
+function cambiarMaterialActivo(setDatos: Props['setDatos'], id: string, activo: boolean) {
+  setDatos((d) => ({ ...d, materiales: d.materiales.map((m) => (m.id === id ? { ...m, activo } : m)) }))
 }

@@ -18,6 +18,22 @@ const proveedores = [
   { id: 'p4', nombre: 'María Jiménez Rojas', cedula: '2-0678-0912', telefono: '8701-4455' },
 ]
 
+const conductores = [
+  { id: 'c1', nombre: 'Luis Brenes Campos', cedula: '1-0789-0456', licencia: 'C1', telefono: '8712-3344' },
+  { id: 'c2', nombre: 'José Mora Solís', cedula: '1-1234-0567', licencia: 'B3', telefono: '8888-2233' },
+  { id: 'c3', nombre: 'Andrés Vargas Ruiz', cedula: '6-0345-0788', licencia: 'C2', telefono: '8654-9010' },
+  { id: 'c4', nombre: 'María Jiménez Rojas', cedula: '2-0678-0912', licencia: 'B3', telefono: '8701-4455' },
+  { id: 'c5', nombre: 'Carlos Quesada Mora', cedula: '3-0456-0123', licencia: 'C2', telefono: '8533-6677' },
+]
+
+const vehiculos = [
+  { id: 'v1', placa: 'C-145872', descripcion: 'Cabezal con góndola', taraKg: 11_240 },
+  { id: 'v2', placa: 'CL-298310', descripcion: 'Camión liviano cerrado', taraKg: 3_300 },
+  { id: 'v3', placa: 'C-160455', descripcion: 'Cabezal con góndola', taraKg: 12_890 },
+  { id: 'v4', placa: 'CL-310022', descripcion: 'Camión liviano de estacas', taraKg: 3_985 },
+  { id: 'v5', placa: 'C-172001', descripcion: 'Cabezal con plataforma para contenedor', taraKg: 14_600 },
+]
+
 /** Días anteriores usan la hora indicada; los de hoy se ubican `hora` horas antes de ahora. */
 function momento(dias: number, hora: number, minutos: number): string {
   const d = new Date()
@@ -67,9 +83,11 @@ export function datosDemo(): Datos {
       tipo: s.tipo,
       estado: s.salida === undefined ? 'en_patio' : 'completado',
       placa: s.placa,
-      conductor: s.conductor,
+      conductor: conductores.find((c) => c.nombre.startsWith(s.conductor))?.nombre ?? s.conductor,
       materialId: s.materialId,
       proveedorId: s.proveedorId,
+      vehiculoId: vehiculos.find((v) => v.placa === s.placa)?.id,
+      conductorId: conductores.find((c) => c.nombre.startsWith(s.conductor))?.id,
       contenedor: s.contenedor,
       marchamo: s.marchamo,
       pesoEntrada: s.entrada,
@@ -92,6 +110,8 @@ export function datosDemo(): Datos {
     },
     materiales,
     proveedores,
+    conductores,
+    vehiculos,
     pesajes,
     siguienteBoleta: 1001 + pesajes.length,
   }

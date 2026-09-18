@@ -3,7 +3,7 @@ import { Boleta } from './components/Boleta'
 import { Configuracion } from './pages/Configuracion'
 import { Historial } from './pages/Historial'
 import { Operacion } from './pages/Operacion'
-import { Proveedores } from './pages/Proveedores'
+import { Registros } from './pages/Registros'
 import { Resumen } from './pages/Resumen'
 import type { Pesaje } from './types'
 import { useDatos } from './useDatos'
@@ -13,7 +13,7 @@ const SECCIONES = [
   { id: 'compras', titulo: 'Compras' },
   { id: 'despachos', titulo: 'Despachos' },
   { id: 'historial', titulo: 'Historial' },
-  { id: 'vendedores', titulo: 'Vendedores' },
+  { id: 'registros', titulo: 'Registros' },
   { id: 'configuracion', titulo: 'Configuración' },
 ] as const
 
@@ -71,7 +71,7 @@ function App() {
           <Operacion key="despacho" tipo="despacho" datos={datos} setDatos={setDatos} verBoleta={verBoleta} />
         )}
         {seccion === 'historial' && <Historial datos={datos} setDatos={setDatos} verBoleta={verBoleta} />}
-        {seccion === 'vendedores' && <Proveedores datos={datos} setDatos={setDatos} />}
+        {seccion === 'registros' && <Registros datos={datos} setDatos={setDatos} />}
         {seccion === 'configuracion' && (
           <Configuracion datos={datos} setDatos={setDatos} restablecer={restablecer} />
         )}

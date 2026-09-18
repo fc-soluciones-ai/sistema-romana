@@ -91,7 +91,7 @@ export function existencias(datos: Datos): ExistenciaMaterial[] {
 export const estaActivo = (r: { activo?: boolean }) => r.activo !== false
 
 /** Cuántas boletas usan un material o un vendedor; si hay alguna, el registro no se borra. */
-export function usadoEn(datos: Datos, campo: 'materialId' | 'proveedorId', id: string): number {
+export function usadoEn(datos: Datos, campo: 'materialId' | 'proveedorId' | 'vehiculoId' | 'conductorId', id: string): number {
   return datos.pesajes.filter((p) => p[campo] === id).length
 }
 

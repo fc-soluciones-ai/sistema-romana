@@ -19,6 +19,24 @@ export interface Proveedor {
   activo?: boolean
 }
 
+export interface Conductor {
+  id: string
+  nombre: string
+  cedula: string
+  licencia: string
+  telefono: string
+  activo?: boolean
+}
+
+export interface Vehiculo {
+  id: string
+  placa: string
+  descripcion: string
+  /** Tara registrada en kg; sirve de referencia contra el peso de salida. */
+  taraKg?: number
+  activo?: boolean
+}
+
 /**
  * compra:    el camión entra cargado (bruto) y sale vacío (tara).
  * despacho:  el camión del exportador entra vacío (tara) y sale cargado (bruto).
@@ -37,6 +55,8 @@ export interface Pesaje {
   materialId: string
   /** Solo en compras. */
   proveedorId?: string
+  vehiculoId?: string
+  conductorId?: string
   /** Solo en despachos. */
   contenedor?: string
   marchamo?: string
@@ -63,6 +83,8 @@ export interface Datos {
   config: Configuracion
   materiales: Material[]
   proveedores: Proveedor[]
+  conductores: Conductor[]
+  vehiculos: Vehiculo[]
   pesajes: Pesaje[]
   siguienteBoleta: number
 }
