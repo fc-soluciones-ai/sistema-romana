@@ -1,6 +1,16 @@
 import { useState, type Dispatch, type FormEvent, type SetStateAction } from 'react'
-import { completados, formatoColones, formatoKg, nuevoId, pesoPagable, totalPagar } from '../calculos'
-import type { Datos } from '../types'
+import {
+  completados,
+  estaActivo,
+  formatoColones,
+  formatoKg,
+  nuevoId,
+  pesoPagable,
+  totalPagar,
+  usadoEn,
+} from '../calculos'
+import { AccionesRegistro } from '../components/AccionesRegistro'
+import type { Datos, Proveedor } from '../types'
 
 interface Props {
   datos: Datos
@@ -13,6 +23,15 @@ export function Proveedores({ datos, setDatos }: Props) {
   const [nuevo, setNuevo] = useState(vacio)
   const [error, setError] = useState('')
   const compras = completados(datos).filter((p) => p.tipo === 'compra')
+
+  const cambiar = (id: string, cambios: Partial<Proveedor>) =>
+    setDatos((d) => ({
+      ...d,
+      proveedores: d.proveedores.map((x) => (x.id === id ? { ...x, ...cambios } : x)),
+    }))
+
+  const eliminar = (id: string) =>
+    setDatos((d) => ({ ...d, proveedores: d.proveedores.filter((x) => x.id !== id) }))
 
   function agregar(e: FormEvent) {
     e.preventDefault()
@@ -39,33 +58,66 @@ export function Proveedores({ datos, setDatos }: Props) {
     <div className="columnas">
       <section className="tarjeta">
         <h2>Vendedores de chatarra</h2>
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Cédula</th>
-              <th>Teléfono</th>
-              <th className="num">Compras</th>
-              <th className="num">Kg vendidos</th>
-              <th className="num">Total pagado</th>
-            </tr>
-          </thead>
-          <tbody>
-            {datos.proveedores.map((x) => {
-              const suyas = compras.filter((p) => p.proveedorId === x.id)
-              return (
-                <tr key={x.id}>
-                  <td>{x.nombre}</td>
-                  <td>{x.cedula}</td>
-                  <td>{x.telefono}</td>
-                  <td className="num">{suyas.length}</td>
-                  <td className="num">{formatoKg(suyas.reduce((s, p) => s + pesoPagable(p), 0))}</td>
-                  <td className="num">{formatoColones(suyas.reduce((s, p) => s + totalPagar(p), 0))}</td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <p className="tenue">Edite cualquier dato directamente en la tabla.</p>
+        <div className="tabla-contenedor">
+          <table className="tabla">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Cédula</th>
+                <th>Teléfono</th>
+                <th className="num">Compras</th>
+                <th className="num">Kg vendidos</th>
+                <th className="num">Total pagado</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {datos.proveedores.map((x) => {
+                const suyas = compras.filter((p) => p.proveedorId === x.id)
+                const activo = estaActivo(x)
+                return (
+                  <tr key={x.id} className={activo ? '' : 'inactiva'}>
+                    <td>
+                      <input
+                        className="nombre-registro"
+                        value={x.nombre}
+                        onChange={(e) => cambiar(x.id, { nombre: e.target.value })}
+                      />
+                      {!activo && <span className="aviso-inactivo">inactivo</span>}
+                    </td>
+                    <td>
+                      <input
+                        className="nombre-registro"
+                        value={x.cedula}
+                        onChange={(e) => cambiar(x.id, { cedula: e.target.value })}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        className="nombre-registro"
+                        value={x.telefono}
+                        onChange={(e) => cambiar(x.id, { telefono: e.target.value })}
+                      />
+                    </td>
+                    <td className="num">{suyas.length}</td>
+                    <td className="num">{formatoKg(suyas.reduce((s, p) => s + pesoPagable(p), 0))}</td>
+                    <td className="num">{formatoColones(suyas.reduce((s, p) => s + totalPagar(p), 0))}</td>
+                    <td className="acciones">
+                      <AccionesRegistro
+                        nombre={x.nombre}
+                        activo={activo}
+                        boletas={usadoEn(datos, 'proveedorId', x.id)}
+                        onEliminar={() => eliminar(x.id)}
+                        onActivar={(valor) => cambiar(x.id, { activo: valor })}
+                      />
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <form className="tarjeta" onSubmit={agregar}>

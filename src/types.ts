@@ -6,6 +6,8 @@ export interface Material {
   /** Rango de mercado de referencia, para orientar al pesador. */
   precioMin?: number
   precioMax?: number
+  /** Un material con boletas no se borra: se desactiva. Sin el campo se asume activo. */
+  activo?: boolean
 }
 
 export interface Proveedor {
@@ -13,6 +15,8 @@ export interface Proveedor {
   nombre: string
   cedula: string
   telefono: string
+  /** Un vendedor con boletas no se borra: se desactiva. Sin el campo se asume activo. */
+  activo?: boolean
 }
 
 /**

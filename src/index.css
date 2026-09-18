@@ -418,6 +418,34 @@ input.precio.fuera-rango {
   background: #fffbef;
 }
 
+input.precio.corto {
+  width: 90px;
+}
+
+input.nombre-registro {
+  min-width: 150px;
+  padding: 5px 8px;
+}
+
+.tabla tr.inactiva input,
+.tabla tr.inactiva td {
+  color: var(--tenue);
+  background: color-mix(in srgb, var(--fondo) 60%, transparent);
+}
+
+.tabla tr.fila-nueva td {
+  background: #f7faf8;
+}
+
+.aviso-inactivo {
+  display: block;
+  margin-top: 2px;
+  color: var(--tenue);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
 .aviso-rango {
   display: block;
   margin-top: 2px;

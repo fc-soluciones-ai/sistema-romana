@@ -87,4 +87,12 @@ export function existencias(datos: Datos): ExistenciaMaterial[] {
   })
 }
 
+/** Un registro sin el campo `activo` se considera activo. */
+export const estaActivo = (r: { activo?: boolean }) => r.activo !== false
+
+/** Cuántas boletas usan un material o un vendedor; si hay alguna, el registro no se borra. */
+export function usadoEn(datos: Datos, campo: 'materialId' | 'proveedorId', id: string): number {
+  return datos.pesajes.filter((p) => p[campo] === id).length
+}
+
 export const nuevoId = () => crypto.randomUUID()

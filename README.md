@@ -19,9 +19,18 @@ depende de eso— y exporta todo lo comprado a un único exportador.
 | Hierro pesado / estructural | 80 – 120 | 100 |
 | Hierro liviano / lámina | 50 – 80 | 65 |
 
-El precio inicial es el punto medio del rango. En **Configuración** se ajusta cada uno; si el precio
-queda fuera de su rango de referencia, la casilla lo advierte. Los rangos se editan en
-`src/demo.ts`.
+El precio inicial es el punto medio del rango. Esta lista es solo el punto de partida: en
+**Configuración** se agregan, editan y eliminan materiales (bronce, baterías, lo que compre el
+negocio). Si el precio queda fuera de su rango de referencia, la casilla lo advierte pero igual
+lo guarda.
+
+### Regla para todas las tablas de registros
+
+Materiales y vendedores se editan directamente en su tabla y siguen la misma regla:
+
+- **Sin boletas asociadas:** el registro se puede **eliminar**.
+- **Con boletas asociadas:** se **desactiva** en lugar de borrarse. Deja de aparecer al pesar, pero
+  las boletas viejas conservan su nombre y su precio. Se puede reactivar cuando se quiera.
 
 ## Funciones
 
@@ -31,8 +40,8 @@ queda fuera de su rango de referencia, la casilla lo advierte. Los rangos se edi
 | **Compras** | Pesaje de entrada del camión cargado (bruto) y de salida vacío (tara). Calcula el peso neto, aplica el rebajo por impurezas, multiplica por el precio vigente y emite la boleta. |
 | **Despachos** | Carga para el exportador: pesa el camión vacío y luego cargado, con contenedor y marchamo. No deja despachar más de lo que hay en inventario. |
 | **Historial** | Todas las boletas, con filtros por tipo, material, fechas y búsqueda. Permite reimprimir, anular y exportar a CSV (Excel). |
-| **Vendedores** | Registro de vendedores de chatarra (nombre, cédula y teléfono), con sus totales vendidos. |
-| **Configuración** | Datos de la empresa para la boleta, nombre del exportador, materiales y precios por kg, y restablecimiento de los datos de demostración. |
+| **Vendedores** | Registro de vendedores de chatarra (nombre, cédula y teléfono), editable en la tabla, con sus totales vendidos. |
+| **Configuración** | Datos de la empresa para la boleta, nombre del exportador, alta y baja de materiales con su precio y rango, y restablecimiento de los datos de demostración. |
 
 La boleta se imprime en formato de 80 mm para impresora térmica.
 

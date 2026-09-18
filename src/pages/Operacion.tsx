@@ -1,5 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from 'react'
-import { existencias, formatoColones, formatoFecha, formatoKg, nuevoId } from '../calculos'
+import { estaActivo, existencias, formatoColones, formatoFecha, formatoKg, nuevoId } from '../calculos'
 import { Romana, type OpcionSimulacion } from '../components/Romana'
 import type { Datos, Pesaje, TipoPesaje } from '../types'
 
@@ -202,7 +202,7 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
                   Vendedor *
                   <select {...campo('proveedorId')}>
                     <option value="">Seleccione…</option>
-                    {datos.proveedores.map((x) => (
+                    {datos.proveedores.filter(estaActivo).map((x) => (
                       <option key={x.id} value={x.id}>
                         {x.nombre} · {x.cedula}
                       </option>
@@ -214,7 +214,7 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
                 Material *
                 <select {...campo('materialId')}>
                   <option value="">Seleccione…</option>
-                  {datos.materiales.map((m) => (
+                  {datos.materiales.filter(estaActivo).map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.nombre}
                       {!esCompra && ` · existencia ${formatoKg(existenciaDe(m.id))}`}

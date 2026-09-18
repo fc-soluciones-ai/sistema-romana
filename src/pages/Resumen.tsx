@@ -1,5 +1,6 @@
 import {
   completados,
+  estaActivo,
   esHoy,
   existencias,
   formatoColones,
@@ -19,7 +20,11 @@ export function Resumen({ datos, verBoleta }: Props) {
   const hechos = completados(datos)
   const comprasHoy = hechos.filter((p) => p.tipo === 'compra' && p.fechaSalida && esHoy(p.fechaSalida))
   const enPatio = datos.pesajes.filter((p) => p.estado === 'en_patio')
-  const inventario = existencias(datos)
+  // Un material inactivo solo se muestra mientras tenga movimiento registrado.
+  const inventario = existencias(datos).filter((e) => {
+    const m = datos.materiales.find((x) => x.id === e.materialId)
+    return (m && estaActivo(m)) || e.compradoKg > 0 || e.despachadoKg > 0
+  })
   const maxExistencia = Math.max(1, ...inventario.map((e) => e.existenciaKg))
   const ultimos = [...hechos]
     .sort((a, b) => (b.fechaSalida ?? '').localeCompare(a.fechaSalida ?? ''))
