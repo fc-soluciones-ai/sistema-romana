@@ -1,75 +1,55 @@
-# React + TypeScript + Vite
+# Sistema de Romana
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Prototipo de sistema para una romana caminera de un centro de compra de chatarra en Costa Rica.
+El negocio compra hierro, cobre y aluminio y exporta todo lo comprado a un único exportador.
 
-Currently, two official plugins are available:
+> **Prototipo de demostración.** La báscula está simulada y los datos se guardan solo en el
+> navegador (`localStorage`). Los precios, el nombre de la empresa y el exportador son de ejemplo
+> y se cambian en **Configuración**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Funciones
 
-## React Compiler
+| Sección | Qué hace |
+| --- | --- |
+| **Resumen** | Kilos comprados y colones pagados hoy, camiones en patio, inventario por material (comprado − despachado) con costo promedio y últimos movimientos. |
+| **Compras** | Pesaje de entrada del camión cargado (bruto) y de salida vacío (tara). Calcula el peso neto, aplica el rebajo por impurezas, multiplica por el precio vigente y emite la boleta. |
+| **Despachos** | Carga para el exportador: pesa el camión vacío y luego cargado, con contenedor y marchamo. No deja despachar más de lo que hay en inventario. |
+| **Historial** | Todas las boletas, con filtros por tipo, material, fechas y búsqueda. Permite reimprimir, anular y exportar a CSV (Excel). |
+| **Vendedores** | Registro de vendedores de chatarra (nombre, cédula y teléfono), con sus totales vendidos. |
+| **Configuración** | Datos de la empresa para la boleta, nombre del exportador, materiales y precios por kg, y restablecimiento de los datos de demostración. |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+La boleta se imprime en formato de 80 mm para impresora térmica.
 
-## Expanding the ESLint configuration
+## Ejecutar
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Abrir http://localhost:5173. En **Compras** o **Despachos**, use los botones del *Simulador de
+báscula* para simular un camión sobre la plataforma y capture el peso cuando el indicador marque
+**ESTABLE**.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Estructura
 
 ```
+src/
+  App.tsx              navegación entre secciones
+  types.ts             modelo de datos
+  calculos.ts          pesos neto/pagable, totales, inventario y formatos (₡, kg)
+  demo.ts              datos de ejemplo
+  useDatos.ts          persistencia en localStorage
+  components/Romana.tsx  indicador de peso (simulado)
+  components/Boleta.tsx  boleta imprimible
+  pages/               Resumen, Operacion (compras y despachos), Historial, Proveedores, Configuracion
+```
+
+## Siguientes pasos si el cliente aprueba
+
+- Leer el indicador real de la romana (puerto serie o red) en lugar del simulador.
+- Base de datos y servidor para que varios equipos usen el sistema y no se pierdan datos.
+- Usuarios y permisos (pesador, administrador), con bitácora de anulaciones.
+- Fotos de placa y carga desde cámaras al capturar el peso.
+- Precios con historial y cierre de caja diario.
+- Revisar con el contador los requisitos de Hacienda (factura electrónica o comprobantes) para las compras y la exportación.
