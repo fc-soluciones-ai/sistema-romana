@@ -1,5 +1,15 @@
 import { useState, type Dispatch, type SetStateAction } from 'react'
-import { estaActivo, existencias, formatoColones, formatoFecha, formatoKg, nuevoId } from '../calculos'
+import {
+  TOLERANCIA_TARA_PCT,
+  estaActivo,
+  existencias,
+  formatoColones,
+  formatoFecha,
+  formatoKg,
+  nuevoId,
+  revisarTara,
+  type RevisionTara,
+} from '../calculos'
 import { Romana, type OpcionSimulacion } from '../components/Romana'
 import type { Datos, Pesaje, TipoPesaje } from '../types'
 
@@ -32,6 +42,8 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
   const [salidaId, setSalidaId] = useState<string | null>(null)
   const [rebajoPct, setRebajoPct] = useState(0)
   const [error, setError] = useState('')
+  // Tara fuera de tolerancia pendiente de que el pesador la acepte o la vuelva a pesar.
+  const [avisoTara, setAvisoTara] = useState<(RevisionTara & { peso: number }) | null>(null)
 
   const enPatio = datos.pesajes.filter((p) => p.tipo === tipo && p.estado === 'en_patio')
   const enSalida = enPatio.find((p) => p.id === salidaId)
@@ -69,7 +81,7 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
           : { etiqueta: 'Llega camión vacío', peso: () => aleatorio(12_000, 16_000) },
       ]
 
-  function registrarEntrada(peso: number): boolean {
+  function registrarEntrada(peso: number, aceptado = false): boolean {
     const faltantes = [
       !placaElegida.trim() && 'placa',
       !form.materialId && 'material',
@@ -77,6 +89,11 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
     ].filter(Boolean)
     if (faltantes.length) {
       setError(`Falta indicar: ${faltantes.join(', ')}.`)
+      return false
+    }
+    const revision = esCompra ? null : revisarTara(datos, form.vehiculoId, peso)
+    if (revision && !aceptado) {
+      setAvisoTara({ ...revision, peso })
       return false
     }
     const pesaje: Pesaje = {
@@ -96,15 +113,17 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
       fechaEntrada: new Date().toISOString(),
       rebajoPct: 0,
       precioKg: 0,
+      diferenciaTaraKg: revision?.diferenciaKg,
       notas: form.notas.trim(),
     }
     setDatos((d) => ({ ...d, pesajes: [...d.pesajes, pesaje], siguienteBoleta: d.siguienteBoleta + 1 }))
     setForm(formularioVacio)
     setError('')
+    setAvisoTara(null)
     return true
   }
 
-  function registrarSalida(peso: number): boolean {
+  function registrarSalida(peso: number, aceptado = false): boolean {
     if (!enSalida) return false
     if (esCompra && peso >= enSalida.pesoEntrada) {
       setError('La tara debe ser menor que el peso de entrada. Descargue el camión antes de pesar.')
@@ -121,6 +140,11 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
       )
       return false
     }
+    const revision = esCompra ? revisarTara(datos, enSalida.vehiculoId, peso) : null
+    if (revision && !aceptado) {
+      setAvisoTara({ ...revision, peso })
+      return false
+    }
     const precioKg = esCompra
       ? (datos.materiales.find((m) => m.id === enSalida.materialId)?.precioKg ?? 0)
       : 0
@@ -131,11 +155,13 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
       fechaSalida: new Date().toISOString(),
       rebajoPct: esCompra ? rebajoPct : 0,
       precioKg,
+      diferenciaTaraKg: revision?.diferenciaKg,
     }
     setDatos((d) => ({ ...d, pesajes: d.pesajes.map((p) => (p.id === completo.id ? completo : p)) }))
     setSalidaId(null)
     setRebajoPct(0)
     setError('')
+    setAvisoTara(null)
     verBoleta(completo)
     return true
   }
@@ -334,6 +360,47 @@ export function Operacion({ tipo, datos, setDatos, verBoleta }: Props) {
           </table>
         )}
       </section>
+
+      {avisoTara && (
+        <div className="modal-fondo" onClick={() => setAvisoTara(null)}>
+          <div className="modal aviso-tara" onClick={(e) => e.stopPropagation()}>
+            <h2>⚠ La tara no coincide con la registrada</h2>
+            <dl className="resumen-salida">
+              <dt>Tara pesada ahora</dt>
+              <dd>{formatoKg(avisoTara.peso)}</dd>
+              <dt>Tara registrada</dt>
+              <dd>{formatoKg(avisoTara.taraRegistrada)}</dd>
+              <dt>Diferencia</dt>
+              <dd className="diferencia">
+                {avisoTara.diferenciaKg > 0 ? '+' : '−'}
+                {formatoKg(Math.abs(avisoTara.diferenciaKg))} ({avisoTara.porcentaje.toFixed(1)} %)
+              </dd>
+            </dl>
+            <p className="ayuda">
+              El camión pesa {avisoTara.diferenciaKg > 0 ? 'más' : 'menos'} de lo registrado y la diferencia supera la
+              tolerancia de {datos.config.toleranciaTaraPct ?? TOLERANCIA_TARA_PCT} %. Revise que el camión esté
+              completamente {esCompra ? 'descargado' : 'vacío'} y que sea el vehículo correcto antes de continuar.
+            </p>
+            <div className="modal-acciones">
+              <button type="button" className="boton" onClick={() => setAvisoTara(null)}>
+                Volver a pesar
+              </button>
+              <button
+                type="button"
+                className="boton peligro"
+                onClick={() => {
+                  const peso = avisoTara.peso
+                  setAvisoTara(null)
+                  if (esCompra) registrarSalida(peso, true)
+                  else registrarEntrada(peso, true)
+                }}
+              >
+                Aceptar la diferencia
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

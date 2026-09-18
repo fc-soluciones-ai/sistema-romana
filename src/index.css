@@ -574,6 +574,13 @@ input.celda-registro.corto {
   color: var(--primario-oscuro);
 }
 
+.estado.aviso {
+  margin-left: 4px;
+  background: #fff1cc;
+  color: #7a5a00;
+  cursor: help;
+}
+
 .estado.anulado {
   background: #fbe9e7;
   color: var(--peligro);
@@ -762,6 +769,30 @@ input.celda-registro.corto {
   padding-top: 8px;
   border-top: 1px dashed var(--texto);
   font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.boleta-pesos .aviso-boleta td {
+  color: var(--peligro);
+}
+
+.aviso-tara {
+  padding: 24px;
+  border-top: 5px solid var(--acento);
+}
+
+.aviso-tara h2 {
+  margin-bottom: 16px;
+  color: #7a5a00;
+}
+
+.aviso-tara .modal-acciones {
+  padding: 16px 0 0;
+  margin-top: 16px;
+}
+
+.aviso-tara .diferencia {
+  color: var(--peligro);
   font-weight: 700;
 }
 

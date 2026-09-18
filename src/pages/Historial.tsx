@@ -155,6 +155,14 @@ export function Historial({ datos, setDatos, verBoleta }: Props) {
                 <td className="num">{p.tipo === 'compra' && p.estado !== 'en_patio' ? formatoColones(totalPagar(p)) : '—'}</td>
                 <td>
                   <span className={`estado ${p.estado}`}>{ESTADOS[p.estado]}</span>
+                  {p.diferenciaTaraKg !== undefined && (
+                    <span
+                      className="estado aviso"
+                      title={`La tara pesada se apartó ${formatoKg(Math.abs(p.diferenciaTaraKg))} de la registrada para el vehículo.`}
+                    >
+                      ⚠ tara
+                    </span>
+                  )}
                 </td>
                 <td className="acciones">
                   <button type="button" className="boton chico" onClick={() => verBoleta(p)}>

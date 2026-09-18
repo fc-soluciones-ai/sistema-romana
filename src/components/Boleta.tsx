@@ -78,6 +78,15 @@ export function Boleta({ pesaje: p, datos, onCerrar }: Props) {
                 <td>Tara</td>
                 <td>{pesoTara(p) === undefined ? 'Pendiente' : formatoKg(pesoTara(p)!)}</td>
               </tr>
+              {p.diferenciaTaraKg !== undefined && (
+                <tr className="aviso-boleta">
+                  <td>Tara fuera de la registrada</td>
+                  <td>
+                    {p.diferenciaTaraKg > 0 ? '+' : '−'}
+                    {formatoKg(Math.abs(p.diferenciaTaraKg))}
+                  </td>
+                </tr>
+              )}
               <tr className="fuerte">
                 <td>Peso neto</td>
                 <td>{formatoKg(pesoNeto(p))}</td>

@@ -66,6 +66,8 @@ export interface Pesaje {
   fechaSalida?: string
   /** Porcentaje rebajado por impurezas o humedad (solo compras). */
   rebajoPct: number
+  /** Diferencia contra la tara registrada del vehículo, cuando el pesador la aceptó fuera de tolerancia. */
+  diferenciaTaraKg?: number
   /** Precio por kg al momento de la compra. */
   precioKg: number
   notas: string
@@ -77,6 +79,8 @@ export interface Configuracion {
   direccion: string
   telefono: string
   exportador: string
+  /** Cuánto puede apartarse la tara pesada de la registrada antes de avisar. */
+  toleranciaTaraPct?: number
 }
 
 export interface Datos {

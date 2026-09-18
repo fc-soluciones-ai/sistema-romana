@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react'
-import { estaActivo, nuevoId, usadoEn } from '../calculos'
+import { TOLERANCIA_TARA_PCT, estaActivo, nuevoId, usadoEn } from '../calculos'
 import { TablaRegistros } from '../components/TablaRegistros'
 import type { Configuracion as Config, Datos, Material } from '../types'
 
@@ -71,6 +71,29 @@ export function Configuracion({ datos, setDatos, restablecer }: Props) {
             </label>
           ))}
         </div>
+
+        <h2 className="separado">Control de tara</h2>
+        <p className="tenue">
+          Cuánto puede apartarse la tara pesada de la registrada para el vehículo antes de que el sistema pida
+          confirmación al pesador.
+        </p>
+        <label>
+          Tolerancia (%)
+          <input
+            type="number"
+            min={0}
+            max={50}
+            step={0.5}
+            className="precio"
+            value={datos.config.toleranciaTaraPct ?? TOLERANCIA_TARA_PCT}
+            onChange={(e) =>
+              setDatos((d) => ({
+                ...d,
+                config: { ...d.config, toleranciaTaraPct: Math.min(50, Math.max(0, Number(e.target.value))) },
+              }))
+            }
+          />
+        </label>
 
         <h2 className="separado">Datos de demostración</h2>
         <p className="tenue">Borra todo lo registrado y vuelve a cargar los ejemplos.</p>

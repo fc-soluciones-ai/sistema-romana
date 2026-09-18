@@ -87,6 +87,27 @@ export function existencias(datos: Datos): ExistenciaMaterial[] {
   })
 }
 
+export const TOLERANCIA_TARA_PCT = 2
+
+export interface RevisionTara {
+  taraRegistrada: number
+  diferenciaKg: number
+  porcentaje: number
+}
+
+/**
+ * Compara la tara pesada contra la registrada del vehículo. Devuelve null cuando
+ * no hay tara registrada o cuando la diferencia cabe dentro de la tolerancia.
+ */
+export function revisarTara(datos: Datos, vehiculoId: string | undefined, taraPesada: number): RevisionTara | null {
+  const registrada = datos.vehiculos.find((v) => v.id === vehiculoId)?.taraKg
+  if (!registrada) return null
+  const diferenciaKg = taraPesada - registrada
+  const porcentaje = (Math.abs(diferenciaKg) / registrada) * 100
+  const tolerancia = datos.config.toleranciaTaraPct ?? TOLERANCIA_TARA_PCT
+  return porcentaje > tolerancia ? { taraRegistrada: registrada, diferenciaKg, porcentaje } : null
+}
+
 /** Un registro sin el campo `activo` se considera activo. */
 export const estaActivo = (r: { activo?: boolean }) => r.activo !== false
 

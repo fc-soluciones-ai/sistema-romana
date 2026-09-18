@@ -41,10 +41,22 @@ editan directamente en su tabla y siguen la misma regla:
 | **Compras** | Pesaje de entrada del camión cargado (bruto) y de salida vacío (tara). Calcula el peso neto, aplica el rebajo por impurezas, multiplica por el precio vigente y emite la boleta. |
 | **Despachos** | Carga para el exportador: pesa el camión vacío y luego cargado, con contenedor y marchamo. No deja despachar más de lo que hay en inventario. |
 | **Historial** | Todas las boletas, con filtros por tipo, material, fechas y búsqueda. Permite reimprimir, anular y exportar a CSV (Excel). |
-| **Registros** | Tablas de vendedores, conductores y vehículos, editables en la misma fila. El vehículo guarda su tara registrada, que se muestra como referencia al dar la salida. |
+| **Registros** | Tablas de vendedores, conductores y vehículos, editables en la misma fila. El vehículo guarda su tara registrada. |
 | **Configuración** | Datos de la empresa para la boleta, nombre del exportador, alta y baja de materiales con su precio y rango, y restablecimiento de los datos de demostración. |
 
 La boleta se imprime en formato de 80 mm para impresora térmica.
+
+## Control de tara
+
+Cuando el peso capturado es la tara del camión —la salida en una compra, la entrada en un
+despacho— el sistema lo compara contra la tara registrada del vehículo. Si la diferencia supera la
+tolerancia (2 % de fábrica, configurable), pide confirmación antes de emitir la boleta:
+
+- **Volver a pesar:** no registra nada y el camión sigue en patio.
+- **Aceptar la diferencia:** completa el pesaje y guarda la diferencia, que queda impresa en la
+  boleta y marcada con **⚠ tara** en el historial.
+
+Así el pesador no puede cerrar una boleta con una tara anormal sin dejar rastro.
 
 ## Ejecutar
 
@@ -78,7 +90,6 @@ src/
 - Leer el indicador real de la romana (puerto serie o red) en lugar del simulador.
 - Base de datos y servidor para que varios equipos usen el sistema y no se pierdan datos.
 - Usuarios y permisos (pesador, administrador), con bitácora de anulaciones.
-- Avisar automáticamente cuando la tara pesada se aparte de la registrada para el vehículo.
 - Fotos de placa y carga desde cámaras al capturar el peso.
 - Precios con historial y cierre de caja diario.
 - Revisar con el contador los requisitos de Hacienda (factura electrónica o comprobantes) para las compras y la exportación.
